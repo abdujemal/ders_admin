@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "289944837560",
+    "firebase_url": "https://completed-full-lectures-default-rtdb.firebaseio.com",
+    "project_id": "completed-full-lectures",
+    "storage_bucket": "completed-full-lectures.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:289944837560:android:5f4b61ccd61e26a3be834d",
+        "android_client_info": {
+          "package_name": "com.example.ders_admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "289944837560-u6l4jla2ah18o0tkms7lf8ooahljsf8k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiA2vITeod4WsEGK_pO1bWQPl_Vwa5vAA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "289944837560-u6l4jla2ah18o0tkms7lf8ooahljsf8k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
