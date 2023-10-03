@@ -2,6 +2,7 @@ import 'package:ders_admin/course.dart';
 import 'package:ders_admin/custom_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CustomAutoComplete extends StatelessWidget {
   final List<String> suggestions;
@@ -76,7 +77,8 @@ class CustomAutoComplete extends StatelessWidget {
                           padding: const EdgeInsets.all(10),
                           child: Text(
                             opt,
-                            style: const TextStyle(color: Colors.black),
+                            style: GoogleFonts.notoSansEthiopic(
+                                color: Colors.black),
                           ),
                         ),
                       ),
@@ -164,7 +166,8 @@ class TitleAutoComplete extends StatelessWidget {
                           padding: const EdgeInsets.all(10),
                           child: Text(
                             opt.title,
-                            style: const TextStyle(color: Colors.black),
+                            style: GoogleFonts.notoSansEthiopic(
+                                color: Colors.black),
                           ),
                         ),
                       ),

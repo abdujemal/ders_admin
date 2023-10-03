@@ -1,4 +1,3 @@
-import 'package:any_link_preview/any_link_preview.dart';
 import 'package:ders_admin/auto_complete.dart';
 import 'package:ders_admin/course.dart';
 import 'package:ders_admin/custom_input.dart';
@@ -7,10 +6,12 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'firebase_options.dart';
 
 main() async {
+  // html.window.document.querySelector('body')!.style.fontFamily = 'MyFont';
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Ders Admin',
+      title: '',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -55,7 +56,7 @@ class _AddCourseState extends ConsumerState<AddCourse> {
 
   TextEditingController noOfRecords = TextEditingController();
 
-  TextEditingController prerequisitTc = TextEditingController();
+  // TextEditingController prerequisitTc = TextEditingController();
 
   TextEditingController authorTc = TextEditingController();
 
@@ -110,31 +111,6 @@ class _AddCourseState extends ConsumerState<AddCourse> {
           key: courseKey,
           child: Column(
             children: [
-              AnyLinkPreview(
-                link: "https://t.me/MohamedAljawi/3305",
-                showMultimedia: true,
-                bodyMaxLines: 5,
-                bodyTextOverflow: TextOverflow.ellipsis,
-                titleStyle: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
-                bodyStyle: const TextStyle(color: Colors.grey, fontSize: 12),
-                errorBody: 'Show my custom error body',
-                errorTitle: 'Show my custom error title',
-                errorWidget: Container(
-                  color: Colors.grey[300],
-                  child: const Text('Oops!'),
-                ),
-                errorImage: "https://google.com/",
-                cache: const Duration(days: 7),
-                backgroundColor: Colors.grey[300],
-                borderRadius: 12,
-                removeElevation: false,
-                boxShadow: const[BoxShadow(blurRadius: 3, color: Colors.grey)],
-                // onTap: () {}, // This disables tap event
-              ),
               StreamBuilder(
                 stream:
                     FirebaseDatabase.instance.ref().child("Courses").onValue,
@@ -143,8 +119,9 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                   if (as.hasData) {
                     final data =
                         as.data!.snapshot.value as Map<dynamic, dynamic>;
-                    courseLst =
-                        data.values.map((e) => Course.fromMap(e)).toList();
+                    courseLst = data.values
+                        .map((e) => Course.fromMap(e as Map))
+                        .toList();
                   }
                   return TitleAutoComplete(
                     suggestions: courseLst,
@@ -156,8 +133,7 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                       setState(() {
                         titleTc.text = course.title;
                         categoryTc.text = course.category;
-                        pdfLink.text = course.pdfLink;
-                        prerequisitTc.text = course.preRequisit.join(",");
+                        pdfLink.text = course.pdfId;
                         authorTc.text = course.author;
                       });
                     },
@@ -185,19 +161,19 @@ class _AddCourseState extends ConsumerState<AddCourse> {
               ),
               CustomInput(
                 controller: courseLink,
-                hint: "Course Link ",
+                hint: "Course Ids ",
                 textInputType: TextInputType.text,
               ),
               CustomInput(
                 controller: pdfLink,
-                hint: "Pdf Link ",
+                hint: "Pdf Ids ",
                 textInputType: TextInputType.text,
               ),
-              CustomInput(
-                controller: prerequisitTc,
-                hint: "Prerequisit",
-                textInputType: TextInputType.text,
-              ),
+              // CustomInput(
+              //   controller: prerequisitTc,
+              //   hint: "Prerequisit",
+              //   textInputType: TextInputType.text,
+              // ),
               CustomInput(
                 controller: noOfRecords,
                 hint: "Number of record ",
@@ -229,9 +205,8 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                                     author: authorTc.text,
                                     ustaz: ustazTc.text,
                                     category: categoryTc.text,
-                                    courseLink: courseLink.text,
-                                    pdfLink: pdfLink.text,
-                                    preRequisit: prerequisitTc.text.split(","),
+                                    courseIds: courseLink.text,
+                                    pdfId: pdfLink.text,
                                     noOfRecord: int.parse(noOfRecords.text),
                                   ).toMap(),
                                 );
@@ -258,7 +233,6 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                               courseLink.text = "";
                               pdfLink.text = "";
                               noOfRecords.text = "";
-                              prerequisitTc.text = "";
                               authorTc.text = "";
                             });
 

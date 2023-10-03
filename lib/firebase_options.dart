@@ -17,16 +17,19 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for android - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -49,23 +52,14 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBiA2vITeod4WsEGK_pO1bWQPl_Vwa5vAA',
-    appId: '1:289944837560:android:5f4b61ccd61e26a3be834d',
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDdVoEyqtfRdmKSYJIdnrys-TKow_LNb0A',
+    appId: '1:289944837560:web:1f1af78600eeedffbe834d',
     messagingSenderId: '289944837560',
     projectId: 'completed-full-lectures',
+    authDomain: 'completed-full-lectures.firebaseapp.com',
     databaseURL: 'https://completed-full-lectures-default-rtdb.firebaseio.com',
     storageBucket: 'completed-full-lectures.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDror_NjHs9wHrBMvmLnh-gh6Rd6E8P2Ys',
-    appId: '1:289944837560:ios:137ebecd8922a562be834d',
-    messagingSenderId: '289944837560',
-    projectId: 'completed-full-lectures',
-    databaseURL: 'https://completed-full-lectures-default-rtdb.firebaseio.com',
-    storageBucket: 'completed-full-lectures.appspot.com',
-    iosClientId: '289944837560-c4p9898am4oj8sr2lgocnbjdt61i1tgr.apps.googleusercontent.com',
-    iosBundleId: 'com.example.dersAdmin',
+    measurementId: 'G-76B4LPECCG',
   );
 }

@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CustomInput extends StatelessWidget {
   final int? noOfText;
@@ -26,7 +27,8 @@ class CustomInput extends StatelessWidget {
     required this.controller,
     this.noOfLine,
     required this.hint,
-    required this.textInputType, this.focusNode,
+    required this.textInputType,
+    this.focusNode,
   }) : super(key: key);
 
   @override
@@ -42,11 +44,12 @@ class CustomInput extends StatelessWidget {
                 return "This Feild is required";
               }
             },
+            style: GoogleFonts.notoSansEthiopic(),
             maxLength: noOfText,
             onChanged: onChanged,
             readOnly: readOnly,
             controller: controller,
-            maxLines: noOfLine,            
+            maxLines: noOfLine,
             keyboardType: textInputType,
             focusNode: focusNode,
             minLines: 1,
