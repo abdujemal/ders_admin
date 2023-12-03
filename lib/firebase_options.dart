@@ -17,14 +17,14 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for ios - '
@@ -52,14 +52,12 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDdVoEyqtfRdmKSYJIdnrys-TKow_LNb0A',
-    appId: '1:289944837560:web:1f1af78600eeedffbe834d',
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyBiA2vITeod4WsEGK_pO1bWQPl_Vwa5vAA',
+    appId: '1:289944837560:android:5f4b61ccd61e26a3be834d',
     messagingSenderId: '289944837560',
     projectId: 'completed-full-lectures',
-    authDomain: 'completed-full-lectures.firebaseapp.com',
     databaseURL: 'https://completed-full-lectures-default-rtdb.firebaseio.com',
     storageBucket: 'completed-full-lectures.appspot.com',
-    measurementId: 'G-76B4LPECCG',
   );
 }

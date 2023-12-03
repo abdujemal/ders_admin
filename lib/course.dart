@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class Course {
@@ -12,18 +12,22 @@ class Course {
   final String author;
   // final List<dynamic> preRequisit;
   final int noOfRecord;
+  final String image;
+  final String dateTime;
+  final String? id;
   Course({
+    this.id,
     required this.title,
     required this.ustaz,
     required this.category,
     required this.courseIds,
     required this.pdfId,
     required this.author,
+    required this.image,
+    required this.dateTime,
     // required this.preRequisit,
     required this.noOfRecord,
   });
-  
- 
 
   Course copyWith({
     String? title,
@@ -32,17 +36,21 @@ class Course {
     String? courseIds,
     String? pdfId,
     String? author,
-    // List<dynamic>? preRequisit,
+    String? image,
+    String? dateTime,
     int? noOfRecord,
+    String? id,
   }) {
     return Course(
+      id: id ?? this.id,
       title: title ?? this.title,
       ustaz: ustaz ?? this.ustaz,
+      dateTime: dateTime ?? this.dateTime,
       category: category ?? this.category,
       courseIds: courseIds ?? this.courseIds,
       pdfId: pdfId ?? this.pdfId,
       author: author ?? this.author,
-      // preRequisit: preRequisit ?? this.preRequisit,
+      image: image ?? this.image,
       noOfRecord: noOfRecord ?? this.noOfRecord,
     );
   }
@@ -55,27 +63,29 @@ class Course {
       'courseIds': courseIds,
       'pdfId': pdfId,
       'author': author,
-      // 'preRequisit': preRequisit,
+      'image': image,
       'noOfRecord': noOfRecord,
+      'dateTime': dateTime,
     };
   }
 
-  factory Course.fromMap(Map<dynamic, dynamic> map) {
+  factory Course.fromMap(DocumentSnapshot documentSnapshot) {
+    final map = documentSnapshot.data() as Map;
     return Course(
+      id: documentSnapshot.id,
       title: map['title'] as String,
       ustaz: map['ustaz'] as String,
       category: map['category'] as String,
       courseIds: map['courseIds'] as String,
       pdfId: map['pdfId'] as String,
       author: map['author'] as String,
-      // preRequisit: List<dynamic>.from((map['preRequisit'] as List<dynamic>)),
+      image: map['image'] as String,
       noOfRecord: map['noOfRecord'] as int,
+      dateTime: map['dateTime'] as String,
     );
   }
 
   String toJson() => json.encode(toMap());
-
-  factory Course.fromJson(String source) => Course.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -85,27 +95,25 @@ class Course {
   @override
   bool operator ==(covariant Course other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.title == title &&
-      other.ustaz == ustaz &&
-      other.category == category &&
-      other.courseIds == courseIds &&
-      other.pdfId == pdfId &&
-      other.author == author &&
-      // listEquals(other.preRequisit, preRequisit) &&
-      other.noOfRecord == noOfRecord;
+
+    return other.title == title &&
+        other.ustaz == ustaz &&
+        other.category == category &&
+        other.courseIds == courseIds &&
+        other.pdfId == pdfId &&
+        other.author == author &&
+        other.noOfRecord == noOfRecord;
   }
 
   @override
   int get hashCode {
     return title.hashCode ^
-      ustaz.hashCode ^
-      category.hashCode ^
-      courseIds.hashCode ^
-      pdfId.hashCode ^
-      author.hashCode ^
-      // preRequisit.hashCode ^
-      noOfRecord.hashCode;
+        ustaz.hashCode ^
+        category.hashCode ^
+        courseIds.hashCode ^
+        pdfId.hashCode ^
+        author.hashCode ^
+        // preRequisit.hashCode ^
+        noOfRecord.hashCode;
   }
 }

@@ -19,11 +19,14 @@ class CustomInput extends StatelessWidget {
 
   final TextInputType textInputType;
 
+  final String? Function(String? v)? validator;
+
   const CustomInput({
     Key? key,
     this.noOfText,
     this.onChanged,
     this.readOnly = false,
+    this.validator,
     required this.controller,
     this.noOfLine,
     required this.hint,
@@ -39,11 +42,13 @@ class CustomInput extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextFormField(
-            validator: (value) {
-              if (value!.isEmpty) {
-                return "This Feild is required";
-              }
-            },
+            validator: validator ??
+                (value) {
+                  if (value!.isEmpty) {
+                    return "This Feild is required";
+                  }
+                  return null;
+                },
             style: GoogleFonts.notoSansEthiopic(),
             maxLength: noOfText,
             onChanged: onChanged,
@@ -55,19 +60,15 @@ class CustomInput extends StatelessWidget {
             minLines: 1,
             decoration: InputDecoration(
               hintText: hint,
-              enabledBorder: UnderlineInputBorder(
-                borderSide: hint == null
-                    ? BorderSide.none
-                    : BorderSide(
-                        color: Colors.grey,
-                      ),
+              enabledBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.grey,
+                ),
               ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: hint == null
-                    ? BorderSide.none
-                    : BorderSide(
-                        color: Colors.grey,
-                      ),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.grey,
+                ),
               ),
             ),
           ),
