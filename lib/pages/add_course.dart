@@ -45,6 +45,10 @@ class _AddCourseState extends ConsumerState<AddCourse> {
 
   bool isValidating = false;
 
+  bool alsoDate = false;
+
+  String uploadDate = DateTime.now().toString();
+
   int? playingIndex;
 
   TextEditingController imageLink = TextEditingController();
@@ -63,8 +67,9 @@ class _AddCourseState extends ConsumerState<AddCourse> {
       courseLink.text = widget.course!.courseIds
           .split(",")
           .map((e) {
-            String encodedString =
-                e.replaceAll("https://b2.ilmfelagi.com/file/ilm-Felagi2/", "");
+            String encodedString = e
+                .replaceAll("https://b2.ilmfelagi.com/file/ilm-Felagi2/", "")
+                .replaceAll("https://b2.ilmfelagi.com/file/Ilm-Felagi/", "");
             String decodedString =
                 Uri.decodeFull(encodedString).replaceAll(" ", "_");
             return "$decodedString:-$e";
@@ -75,9 +80,11 @@ class _AddCourseState extends ConsumerState<AddCourse> {
       noOfRecords.text = widget.course!.noOfRecord.toString();
       authorTc.text = widget.course!.author;
       imageLink.text = widget.course!.image;
+      uploadDate = widget.course!.dateTime;
       audioIds = widget.course!.courseIds.split(",").map((e) {
-        String encodedString =
-            e.replaceAll("https://b2.ilmfelagi.com/file/ilm-Felagi2/", "");
+        String encodedString = e
+            .replaceAll("https://b2.ilmfelagi.com/file/ilm-Felagi2/", "")
+            .replaceAll("https://b2.ilmfelagi.com/file/Ilm-Felagi/", "");
         String decodedString =
             Uri.decodeFull(encodedString).replaceAll(" ", "_");
         return "$decodedString:-$e";
@@ -90,6 +97,7 @@ class _AddCourseState extends ConsumerState<AddCourse> {
 
   refresh() {
     ustazs = [];
+    category = [];
     FirebaseFirestore.instance.collection("Ustaz").get().then((ds) {
       if (ds.docs.isNotEmpty) {
         final data = ds.docs;
@@ -128,12 +136,31 @@ class _AddCourseState extends ConsumerState<AddCourse> {
     });
   }
 
+  bool deleteNow = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Course"),
+        title: Text(widget.course != null ? "Edit Course" : "Add Course"),
         actions: [
+          IconButton(
+            onPressed: () {
+              if (deleteNow) {
+                FirebaseFirestore.instance
+                    .collection("Courses")
+                    .doc("${widget.course!.id}")
+                    .delete();
+              } else {
+                deleteNow = true;
+                Fluttertoast.showToast(msg: "Press it again.");
+                Future.delayed(const Duration(seconds: 5)).then((value) {
+                  deleteNow = false;
+                });
+              }
+            },
+            icon: const Icon(Icons.delete),
+          ),
           IconButton(
               onPressed: () {
                 refresh();
@@ -146,6 +173,14 @@ class _AddCourseState extends ConsumerState<AddCourse> {
           key: courseKey,
           child: Column(
             children: [
+              CheckboxListTile(
+                  value: alsoDate,
+                  title: const Text("Also Date"),
+                  onChanged: (v) {
+                    setState(() {
+                      alsoDate = v!;
+                    });
+                  }),
               StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection("Courses")
@@ -169,6 +204,10 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                         pdfLink.text = course.pdfId;
                         authorTc.text = course.author;
                         imageLink.text = course.image;
+                        if (alsoDate) {
+                          print("works");
+                          uploadDate = course.dateTime;
+                        }
                       });
                     },
                   );
@@ -263,6 +302,7 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                   child: const Text("Validate Audios"),
                 ),
               ),
+
               if (courseLink.text.isNotEmpty)
                 SizedBox(
                   height: 400,
@@ -318,6 +358,8 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                                           ustaz: selectedUstaz!,
                                           category: categoryTc.text,
                                           courseIds: pureIds.join(","),
+                                          dateTime:
+                                              alsoDate ? uploadDate : null,
                                           pdfId: pdfLink.text
                                               .trim()
                                               .split(":-")
@@ -334,6 +376,7 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                                   .doc("$selectedUstaz${titleTc.text}")
                                   .set(
                                     Course(
+                                      courseId: "$selectedUstaz${titleTc.text}",
                                       title: titleTc.text,
                                       author: authorTc.text,
                                       ustaz: selectedUstaz!,
@@ -343,7 +386,8 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                                           pdfLink.text.trim().split(":-").last,
                                       image: imageLink.text,
                                       noOfRecord: int.parse(noOfRecords.text),
-                                      dateTime: DateTime.now().toString(),
+                                      dateTime: uploadDate,
+                                      totalDuration: 0,
                                     ).toMap(),
                                     SetOptions(
                                       merge: true,
@@ -387,19 +431,22 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                                 Navigator.pop(context);
                               }
                             } else {
-                              refresh();
+                              // refresh();
 
-                              setState(() {
-                                isLoading = false;
-                                titleTc.text = "";
-                                categoryTc.text = "";
-                                courseLink.text = "";
-                                pdfLink.text = "";
-                                noOfRecords.text = "";
-                                authorTc.text = "";
-                                imageLink.text = "";
-                                audioIds = [];
-                              });
+                              // setState(() {
+                              //   isLoading = false;
+                              //   titleTc.text = "";
+                              //   categoryTc.text = "";
+                              //   courseLink.text = "";
+                              //   pdfLink.text = "";
+                              //   noOfRecords.text = "";
+                              //   authorTc.text = "";
+                              //   imageLink.text = "";
+                              //   audioIds = [];
+                              // });
+                              if (mounted) {
+                                Navigator.pop(context);
+                              }
                               Fluttertoast.showToast(msg: "Successfully Added");
                             }
                           } catch (e) {

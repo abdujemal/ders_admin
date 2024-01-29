@@ -154,20 +154,24 @@ class TitleAutoComplete extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: options.map((opt) {
-                  return InkWell(
-                    onTap: () {
-                      onSelected(opt);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.only(right: 60),
-                      child: Card(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(10),
-                          child: Text(
-                            opt.title,
-                            style: GoogleFonts.notoSansEthiopic(
-                                color: Colors.black),
+                  return SizedBox(
+                    width: MediaQuery.of(context).size.width - 20,
+                    child: InkWell(
+                      onTap: () {
+                        onSelected(opt);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.only(right: 60),
+                        child: Card(
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              "${opt.title} by ${opt.ustaz}",
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.notoSansEthiopic(
+                                  color: Colors.black),
+                            ),
                           ),
                         ),
                       ),

@@ -8,10 +8,12 @@ class Course {
   final String ustaz;
   final String category;
   final String courseIds;
+  final String? courseId;
   final String pdfId;
   final String author;
   // final List<dynamic> preRequisit;
   final int noOfRecord;
+  final int totalDuration;
   final String image;
   final String dateTime;
   final String? id;
@@ -25,6 +27,8 @@ class Course {
     required this.author,
     required this.image,
     required this.dateTime,
+    required this.totalDuration,
+    required this.courseId,
     // required this.preRequisit,
     required this.noOfRecord,
   });
@@ -39,10 +43,13 @@ class Course {
     String? image,
     String? dateTime,
     int? noOfRecord,
+    int? totalDuration,
+    String? courseId,
     String? id,
   }) {
     return Course(
       id: id ?? this.id,
+      courseId: courseId ?? this.courseId,
       title: title ?? this.title,
       ustaz: ustaz ?? this.ustaz,
       dateTime: dateTime ?? this.dateTime,
@@ -52,6 +59,7 @@ class Course {
       author: author ?? this.author,
       image: image ?? this.image,
       noOfRecord: noOfRecord ?? this.noOfRecord,
+      totalDuration: totalDuration ?? this.totalDuration,
     );
   }
 
@@ -59,6 +67,7 @@ class Course {
     return <String, dynamic>{
       'title': title,
       'ustaz': ustaz,
+      'courseId': courseId,
       'category': category,
       'courseIds': courseIds,
       'pdfId': pdfId,
@@ -66,23 +75,26 @@ class Course {
       'image': image,
       'noOfRecord': noOfRecord,
       'dateTime': dateTime,
+      'totalDuration': totalDuration,
     };
   }
 
   factory Course.fromMap(DocumentSnapshot documentSnapshot) {
     final map = documentSnapshot.data() as Map;
     return Course(
-      id: documentSnapshot.id,
-      title: map['title'] as String,
-      ustaz: map['ustaz'] as String,
-      category: map['category'] as String,
-      courseIds: map['courseIds'] as String,
-      pdfId: map['pdfId'] as String,
-      author: map['author'] as String,
-      image: map['image'] as String,
-      noOfRecord: map['noOfRecord'] as int,
-      dateTime: map['dateTime'] as String,
-    );
+        id: documentSnapshot.id,
+        courseId: map['courseId'],
+        title: map['title'] as String,
+        ustaz: map['ustaz'] as String,
+        category: map['category'] as String,
+        courseIds: map['courseIds'] as String,
+        pdfId: map['pdfId'] as String,
+        author: map['author'] as String,
+        image: map['image'] as String,
+        noOfRecord: map['noOfRecord'] as int,
+        dateTime: map['dateTime'] as String,
+        totalDuration: map['totalDuration'] ?? 0,
+        );
   }
 
   String toJson() => json.encode(toMap());

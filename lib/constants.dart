@@ -2,6 +2,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'main.dart';
 
 class UrlData {
@@ -11,6 +12,12 @@ class UrlData {
     required this.name,
     required this.url,
   });
+}
+
+launchUrl(url) async {
+  if (!await launchUrl(url)) {
+    Fluttertoast.showToast(msg: 'Could not launch $url');
+  }
 }
 
 const primaryColor = MaterialColor(
@@ -42,7 +49,8 @@ const primaryColor = MaterialColor(
 //   }
 // }
 
-Future<void> sendFcmNotification(String title, String body, String imgUrl) async {
+Future<void> sendFcmNotification(
+    String title, String body, String imgUrl) async {
   final dio = Dio();
   const url = 'https://fcm.googleapis.com/fcm/send';
 

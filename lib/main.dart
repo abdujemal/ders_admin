@@ -1,3 +1,4 @@
+import 'package:ders_admin/constants.dart';
 import 'package:ders_admin/pages/add_course.dart';
 import 'package:ders_admin/pages/courses.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -29,7 +30,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: '',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: primaryColor,
+        primaryColor: primaryColor,
       ),
       home: const Courses(),
     );
