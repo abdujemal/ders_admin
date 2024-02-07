@@ -1,131 +1,214 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: annotate_overrides, overridden_fields
+
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 class Course {
-  final String title;
-  final String ustaz;
+  final String courseId;
+  final String author;
+  final int? id;
   final String category;
   final String courseIds;
-  final String? courseId;
-  final String pdfId;
-  final String author;
-  // final List<dynamic> preRequisit;
+  final String? audioSizes;
   final int noOfRecord;
-  final int totalDuration;
+  final String pdfId;
+  final String title;
+  final String ustaz;
+  final String lastViewed;
+  final int isFav;
+  final int isStarted;
+  final int isFinished;
+  final int pausedAtAudioNum;
+  final int pausedAtAudioSec;
+  final int isScheduleOn;
+  final double pdfPage;
+  final double pdfNum;
+  final String scheduleTime;
+  final String scheduleDates;
   final String image;
+  final int totalDuration;
+  final int isCompleted;
+  final int isBeginner;
   final String dateTime;
-  final String? id;
-  Course({
+
+  const Course({
+    required this.courseId,
+    required this.author,
     this.id,
-    required this.title,
-    required this.ustaz,
     required this.category,
     required this.courseIds,
-    required this.pdfId,
-    required this.author,
-    required this.image,
-    required this.dateTime,
-    required this.totalDuration,
-    required this.courseId,
-    // required this.preRequisit,
+    required this.audioSizes,
     required this.noOfRecord,
+    required this.pdfId,
+    required this.title,
+    required this.ustaz,
+    this.lastViewed = "",
+    this.isFav = 0,
+    this.isStarted = 0,
+    this.isFinished = 0,
+    this.pausedAtAudioNum = 0,
+    this.pausedAtAudioSec = 0,
+    this.scheduleDates = "",
+    this.scheduleTime = "",
+    this.isScheduleOn = 0,
+    this.pdfPage = 0,
+    this.pdfNum = 1,
+    this.isBeginner = 0,
+    required this.dateTime,
+    required this.image,
+    required this.totalDuration,
+    required this.isCompleted,
   });
-
-  Course copyWith({
-    String? title,
-    String? ustaz,
-    String? category,
-    String? courseIds,
-    String? pdfId,
-    String? author,
-    String? image,
-    String? dateTime,
-    int? noOfRecord,
-    int? totalDuration,
-    String? courseId,
-    String? id,
-  }) {
-    return Course(
-      id: id ?? this.id,
-      courseId: courseId ?? this.courseId,
-      title: title ?? this.title,
-      ustaz: ustaz ?? this.ustaz,
-      dateTime: dateTime ?? this.dateTime,
-      category: category ?? this.category,
-      courseIds: courseIds ?? this.courseIds,
-      pdfId: pdfId ?? this.pdfId,
-      author: author ?? this.author,
-      image: image ?? this.image,
-      noOfRecord: noOfRecord ?? this.noOfRecord,
-      totalDuration: totalDuration ?? this.totalDuration,
-    );
-  }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'title': title,
-      'ustaz': ustaz,
+      'id': id,
       'courseId': courseId,
+      'author': author,
       'category': category,
       'courseIds': courseIds,
-      'pdfId': pdfId,
-      'author': author,
-      'image': image,
+      "audioSizes": audioSizes,
       'noOfRecord': noOfRecord,
-      'dateTime': dateTime,
+      'pdfId': pdfId,
+      'title': title,
+      'ustaz': ustaz,
+      'image': image,
+      'lastViewed': lastViewed,
+      'isFav': isFav,
+      'isStarted': isStarted,
+      'isFinished': isFinished,
+      'pausedAtAudioNum': pausedAtAudioNum,
+      'pausedAtAudioSec': pausedAtAudioSec,
+      "scheduleDates": scheduleDates,
+      "scheduleTime": scheduleTime,
+      'isScheduleOn': isScheduleOn,
+      'pdfPage': pdfPage,
+      'pdfNum': pdfNum,
       'totalDuration': totalDuration,
+      "isCompleted": isCompleted,
+      'dateTime': dateTime,
+      'isBeginner': isBeginner,
     };
   }
 
-  factory Course.fromMap(DocumentSnapshot documentSnapshot) {
-    final map = documentSnapshot.data() as Map;
+  Map<String, dynamic> toOriginalMap() {
+    return {
+      'courseId': courseId,
+      'author': author,
+      'category': category,
+      'courseIds': courseIds,
+      'audioSizes': audioSizes,
+      'noOfRecord': noOfRecord,
+      'pdfId': pdfId,
+      'title': title,
+      'ustaz': ustaz,
+      'image': image,
+      'totalDuration': totalDuration,
+      "isCompleted": isCompleted,
+      'dateTime': dateTime,
+    };
+  }
+
+  factory Course.fromMap(Map map, String id, {Course? copyFrom}) {
     return Course(
-        id: documentSnapshot.id,
-        courseId: map['courseId'],
-        title: map['title'] as String,
-        ustaz: map['ustaz'] as String,
-        category: map['category'] as String,
-        courseIds: map['courseIds'] as String,
-        pdfId: map['pdfId'] as String,
-        author: map['author'] as String,
-        image: map['image'] as String,
-        noOfRecord: map['noOfRecord'] as int,
-        dateTime: map['dateTime'] as String,
-        totalDuration: map['totalDuration'] ?? 0,
-        );
+      courseId: id,
+      id: map['id'] ?? (copyFrom?.id),
+      author: map['author'] as String,
+      category: map['category'] as String,
+      courseIds: map['courseIds'] as String,
+      audioSizes: map['audioSizes'],
+      noOfRecord: map['noOfRecord'] as int,
+      pdfId: map['pdfId'] as String,
+      title: map['title'] as String,
+      ustaz: map['ustaz'] as String,
+      lastViewed:
+          map['lastViewed'] ?? (copyFrom != null ? copyFrom.lastViewed : ""),
+      isFav: map['isFav'] ?? (copyFrom != null ? copyFrom.isFav : 0),
+      isStarted:
+          map['isStarted'] ?? (copyFrom != null ? copyFrom.isStarted : 0),
+      isFinished:
+          map['isFinished'] ?? (copyFrom != null ? copyFrom.isFinished : 0),
+      pausedAtAudioNum: map['pausedAtAudioNum'] ??
+          (copyFrom != null ? copyFrom.pausedAtAudioNum : 0),
+      pausedAtAudioSec: map['pausedAtAudioSec'] ??
+          (copyFrom != null ? copyFrom.pausedAtAudioSec : 0),
+      scheduleDates: map['scheduleDates'] ??
+          (copyFrom != null ? copyFrom.scheduleDates : ""),
+      scheduleTime: map['scheduleTime'] ??
+          (copyFrom != null ? copyFrom.scheduleTime : ""),
+      isScheduleOn:
+          map['isScheduleOn'] ?? (copyFrom != null ? copyFrom.isScheduleOn : 0),
+      pdfPage: map['pdfPage'] ?? (copyFrom != null ? copyFrom.pdfPage : 0.0),
+      pdfNum: map['pdfNum'] ?? (copyFrom != null ? copyFrom.pdfNum : 1),
+      image: map['image'],
+      isBeginner: map['isBeginner'] == null
+          ? 0
+          : map['isBeginner']
+              ? 1
+              : 0,
+      totalDuration: map["totalDuration"] ?? 0,
+      isCompleted: map['isCompleted'] ?? 1,
+      dateTime: map['dateTime'] as String,
+    );
   }
 
-  String toJson() => json.encode(toMap());
-
-  @override
-  String toString() {
-    return 'Course(title: $title, ustaz: $ustaz, category: $category, courseIds: $courseIds, pdfId: $pdfId, author: $author, noOfRecord: $noOfRecord)';
+  Course copyWith(
+      {String? courseId,
+      String? author,
+      int? id,
+      String? category,
+      String? courseIds,
+      int? noOfRecord,
+      String? pdfId,
+      String? title,
+      String? ustaz,
+      String? lastViewed,
+      int? isFav,
+      int? isStarted,
+      int? isFinished,
+      int? pausedAtAudioNum,
+      int? pausedAtAudioSec,
+      int? isScheduleOn,
+      String? scheduleDates,
+      String? scheduleTime,
+      double? pdfPage,
+      double? pdfNum,
+      String? image,
+      String? audioSizes,
+      int? isCompleted,
+      String? dateTime,
+      int? totalDuration}) {
+    return Course(
+      courseId: courseId ?? this.courseId,
+      author: author ?? this.author,
+      id: id ?? this.id,
+      dateTime: dateTime ?? this.dateTime,
+      category: category ?? this.category,
+      courseIds: courseIds ?? this.courseIds,
+      audioSizes: audioSizes ?? this.audioSizes,
+      noOfRecord: noOfRecord ?? this.noOfRecord,
+      pdfId: pdfId ?? this.pdfId,
+      title: title ?? this.title,
+      ustaz: ustaz ?? this.ustaz,
+      lastViewed: lastViewed ?? this.lastViewed,
+      isFav: isFav ?? this.isFav,
+      isStarted: isStarted ?? this.isStarted,
+      isFinished: isFinished ?? this.isFinished,
+      pausedAtAudioNum: pausedAtAudioNum ?? this.pausedAtAudioNum,
+      pausedAtAudioSec: pausedAtAudioSec ?? this.pausedAtAudioSec,
+      scheduleDates: scheduleDates ?? this.scheduleDates,
+      scheduleTime: scheduleTime ?? this.scheduleTime,
+      isScheduleOn: isScheduleOn ?? this.isScheduleOn,
+      pdfPage: pdfPage ?? this.pdfPage,
+      pdfNum: pdfNum ?? this.pdfNum,
+      image: image ?? this.image,
+      totalDuration: totalDuration ?? this.totalDuration,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
   }
 
-  @override
-  bool operator ==(covariant Course other) {
-    if (identical(this, other)) return true;
+  String toJsonString() => json.encode(toMap());
 
-    return other.title == title &&
-        other.ustaz == ustaz &&
-        other.category == category &&
-        other.courseIds == courseIds &&
-        other.pdfId == pdfId &&
-        other.author == author &&
-        other.noOfRecord == noOfRecord;
-  }
-
-  @override
-  int get hashCode {
-    return title.hashCode ^
-        ustaz.hashCode ^
-        category.hashCode ^
-        courseIds.hashCode ^
-        pdfId.hashCode ^
-        author.hashCode ^
-        // preRequisit.hashCode ^
-        noOfRecord.hashCode;
-  }
+  Course fromJsonString(String jsn, String id) =>
+      Course.fromMap(json.decode(jsn), id);
 }

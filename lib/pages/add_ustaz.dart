@@ -132,6 +132,9 @@ class _AddUstazState extends ConsumerState<AddUstaz> {
 
                       loading = false;
                       setState(() {});
+                      if (mounted) {
+                        Navigator.pop(context);
+                      }
                     },
                     child: Ink(
                       padding: const EdgeInsets.all(10),

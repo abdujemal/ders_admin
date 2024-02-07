@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ders_admin/pages/add_course.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +60,9 @@ class _CourseItemState extends ConsumerState<CourseItem> {
                           width: 80,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: NetworkImage(widget.courseModel.image),
+                              image: CachedNetworkImageProvider(
+                                widget.courseModel.image,
+                              ),
                               fit: BoxFit.fill,
                             ),
                             borderRadius: BorderRadius.circular(15),
@@ -108,13 +111,38 @@ class _CourseItemState extends ConsumerState<CourseItem> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              widget.courseModel.title,
-                              textAlign: TextAlign.start,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    widget.courseModel.title,
+                                    textAlign: TextAlign.start,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                widget.courseModel.audioSizes != null
+                                    ? widget.courseModel.courseIds
+                                                .split(",")
+                                                .length ==
+                                            widget.courseModel.audioSizes!
+                                                .split(",")
+                                                .length
+                                        ? const Icon(
+                                            Icons.check_circle,
+                                            color: Colors.green,
+                                          )
+                                        : const Icon(
+                                            Icons.error,
+                                            color: Colors.yellow,
+                                          )
+                                    : const Icon(
+                                        Icons.error,
+                                        color: Colors.red,
+                                      )
+                              ],
                             ),
                           ],
                         ),
@@ -238,6 +266,29 @@ class _CourseItemState extends ConsumerState<CourseItem> {
                         widget.courseModel.category,
                         style: const TextStyle(color: Colors.white),
                       ),
+                    ),
+                  ),
+                ),
+              if (widget.courseModel.isCompleted == 0)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                      right: 10,
+                      left: 5,
+                    ),
+                    // height: 20,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        bottomRight: Radius.circular(15),
+                      ),
+                      color: Colors.amber,
+                    ),
+                    child: const Text(
+                      "አላለቀም",
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),

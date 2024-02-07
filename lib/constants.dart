@@ -1,5 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
+import 'dart:convert';
+import 'dart:io';
+import 'package:crypto/crypto.dart';
+import 'package:http/http.dart' as http;
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -12,6 +17,16 @@ class UrlData {
     required this.name,
     required this.url,
   });
+}
+
+const String dbPath = '/ilmfelagi/DB.db';
+
+class DatabaseConst {
+  static String savedCourses = "Courses";
+  static String category = "Category";
+  static String faq = "FAQ";
+  static String ustaz = "Ustaz";
+  static String content = "Content";
 }
 
 launchUrl(url) async {
@@ -83,6 +98,78 @@ Future<void> sendFcmNotification(
   } catch (e) {
     // Handle any error that occurred during the request
     print('Error sending FCM notification: $e');
+  }
+}
+
+Future<void> uploadFileToB2(File file) async {
+  // Replace with your B2 credentials
+  String? accountId = dotEnv.env['YOUR_ACCOUNT_ID'];
+  String? applicationKey = dotEnv.env['YOUR_APPLICATION_KEY'];
+
+  // Replace with your bucket name and file name
+  String? bucketName = dotEnv.env['YOUR_BUCKET_NAME'];
+  String fileName = file.path.split('/').last;
+  String ext = fileName.split(".").last;
+
+  // Read the file content as bytes
+  List<int> fileBytes = await file.readAsBytes();
+
+  if (accountId == null || applicationKey == null || bucketName == null) {
+    return;
+  }
+
+  // Create the URL for uploading the file
+  String uploadUrl =
+      'https://api.backblazeb2.com/b2api/v2/b2_upload_file/$bucketName/DersDb/$fileName';
+
+  // Set the request headers
+  Map<String, String> headers = {
+    'Authorization':
+        'Basic ${base64.encode(utf8.encode('$accountId:$applicationKey'))}',
+    'Content-Type': 'b2/x-auto',
+    'X-Bz-File-Name': fileName,
+    'X-Bz-Content-Sha1': sha1.convert(fileBytes).toString(),
+  };
+
+  try {
+    // Send the HTTP request with the file content
+    http.Response response = await http.post(
+      Uri.parse(uploadUrl),
+      headers: headers,
+      body: fileBytes,
+    );
+
+    // Check the response status code
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(
+        msg: "File uploaded successfully",
+        backgroundColor: primaryColor,
+      );
+    } else {
+      Fluttertoast.showToast(msg: "File upload failed ${response.statusCode}");
+      print("File upload failed ${response.statusCode}");
+    }
+  } catch (e) {
+    Fluttertoast.showToast(msg: e.toString());
+    print(e.toString());
+  }
+}
+
+String formatFileSize(int sizeInBytes) {
+  if (sizeInBytes < 1024) {
+    return '$sizeInBytes B';
+  } else if (sizeInBytes < 1024 * 1024) {
+    double sizeInKB = sizeInBytes / 1024;
+    return '${sizeInKB.toStringAsFixed(2)} KB';
+  } else if (sizeInBytes < 1024 * 1024 * 1024) {
+    double sizeInMB = sizeInBytes / (1024 * 1024);
+    return '${sizeInMB.toStringAsFixed(2)} MB';
+  } else if (sizeInBytes < 1024 * 1024 * 1024 * 1024) {
+    double sizeInGB = sizeInBytes / (1024 * 1024 * 1024);
+    return '${sizeInGB.toStringAsFixed(2)} GB';
+  } else {
+    double sizeInTB = sizeInBytes / (1024 * 1024 * 1024 * 1024);
+    return '${sizeInTB.toStringAsFixed(2)} TB';
   }
 }
 

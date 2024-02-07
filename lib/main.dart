@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'database_helper.dart';
 import 'firebase_options.dart';
 
 final dotEnv = DotEnv();
@@ -13,6 +14,7 @@ final dotEnv = DotEnv();
 main() async {
   // html.window.document.querySelector('body')!.style.fontFamily = 'MyFont';
   WidgetsFlutterBinding.ensureInitialized();
+  DatabaseHelper().initializeDatabase();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

@@ -57,11 +57,15 @@ class _AddCourseState extends ConsumerState<AddCourse> {
 
   List<String> urls = [];
 
+  bool isCompleted = true;
+
   @override
   void initState() {
     super.initState();
 
     if (widget.course != null) {
+      print("audioSizes ${widget.course!.audioSizes}");
+      isCompleted = widget.course!.isCompleted == 1;
       titleTc.text = widget.course!.title;
       categoryTc.text = widget.course!.category;
       courseLink.text = widget.course!.courseIds
@@ -145,12 +149,16 @@ class _AddCourseState extends ConsumerState<AddCourse> {
         title: Text(widget.course != null ? "Edit Course" : "Add Course"),
         actions: [
           IconButton(
-            onPressed: () {
+            onPressed: () async {
               if (deleteNow) {
-                FirebaseFirestore.instance
+                await FirebaseFirestore.instance
                     .collection("Courses")
-                    .doc("${widget.course!.id}")
+                    .doc("${widget.course!.courseId}")
                     .delete();
+                Fluttertoast.showToast(msg: "Deleted successfully");
+                if (mounted) {
+                  Navigator.pop(context);
+                }
               } else {
                 deleteNow = true;
                 Fluttertoast.showToast(msg: "Press it again.");
@@ -189,7 +197,9 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                   List<Course> courseLst = [];
                   if (as.hasData) {
                     final data = as.data!.docs;
-                    courseLst = data.map((e) => Course.fromMap(e)).toList();
+                    courseLst = data
+                        .map((e) => Course.fromMap(e.data(), e.id))
+                        .toList();
                   }
                   return TitleAutoComplete(
                     suggestions: courseLst,
@@ -283,7 +293,6 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                 hint: "Image Id",
                 textInputType: TextInputType.text,
               ),
-
               CustomInput(
                 controller: noOfRecords,
                 hint: "Number of record ",
@@ -292,6 +301,14 @@ class _AddCourseState extends ConsumerState<AddCourse> {
               const SizedBox(
                 height: 15,
               ),
+              CheckboxListTile(
+                  title: const Text("Is Completed"),
+                  value: isCompleted,
+                  onChanged: (v) {
+                    setState(() {
+                      isCompleted = v!;
+                    });
+                  }),
               InkWell(
                 onTap: () {
                   setState(() {});
@@ -349,10 +366,11 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                             if (widget.course != null) {
                               await FirebaseFirestore.instance
                                   .collection("Courses")
-                                  .doc(widget.course!.id!)
+                                  .doc(widget.course!.courseId)
                                   .update(
                                     widget.course!
                                         .copyWith(
+                                          isCompleted: isCompleted ? 1 : 0,
                                           title: titleTc.text,
                                           author: authorTc.text,
                                           ustaz: selectedUstaz!,
@@ -368,7 +386,7 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                                           noOfRecord:
                                               int.parse(noOfRecords.text),
                                         )
-                                        .toMap(),
+                                        .toOriginalMap(),
                                   );
                             } else {
                               await FirebaseFirestore.instance
@@ -388,13 +406,15 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                                       noOfRecord: int.parse(noOfRecords.text),
                                       dateTime: uploadDate,
                                       totalDuration: 0,
-                                    ).toMap(),
+                                      audioSizes: null,
+                                      isCompleted: isCompleted ? 1 : 0,
+                                    ).toOriginalMap(),
                                     SetOptions(
                                       merge: true,
                                     ),
                                   );
                               await sendFcmNotification(
-                                "አዲስ ደርስ ተለቅዋል",
+                                "አዲስ ደርስ ተለቋል",
                                 "${titleTc.text} በ$selectedUstaz",
                                 imageLink.text,
                               );
@@ -444,10 +464,10 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                               //   imageLink.text = "";
                               //   audioIds = [];
                               // });
+                              Fluttertoast.showToast(msg: "Successfully Added");
                               if (mounted) {
                                 Navigator.pop(context);
                               }
-                              Fluttertoast.showToast(msg: "Successfully Added");
                             }
                           } catch (e) {
                             Fluttertoast.showToast(
