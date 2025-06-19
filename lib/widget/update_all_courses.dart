@@ -1,11 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ders_admin/course.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:just_audio/just_audio.dart';
+
+import '../constants.dart';
 
 class UpdateAllCourses extends ConsumerStatefulWidget {
   final List<Course> courses;
@@ -25,6 +29,7 @@ class _UpdateAllCoursesState extends ConsumerState<UpdateAllCourses> {
   List<int> sizes = [];
   bool jumpIt = false;
   bool stopLoop = false;
+  final dio = Dio();
 
   @override
   void initState() {
@@ -63,7 +68,7 @@ class _UpdateAllCoursesState extends ConsumerState<UpdateAllCourses> {
     stopLoop = false;
     print(widget.courses.length);
     wrongurls = [];
-    for (Course cm in widget.courses) {
+    for (Course cm in widget.courses.reversed) {
       if (stopLoop) {
         break;
       }
@@ -148,19 +153,63 @@ class _UpdateAllCoursesState extends ConsumerState<UpdateAllCourses> {
         }
         print(
             "len(sizes): ${sizes.length}  len(audios)${cm.courseIds.split(",").length}");
-        await FirebaseFirestore.instance
-            .collection("Courses")
-            .doc(cm.courseId)
-            .update(
-              cm
-                  .copyWith(
-                    totalDuration: cm.totalDuration == 0 ? totalDuration : null,
-                    audioSizes: sizes.length == cm.courseIds.split(",").length
-                        ? sizes.join(",")
-                        : cm.audioSizes,
-                  )
-                  .toOriginalMap(),
-            );
+
+        try {
+          await FirebaseFirestore.instance
+              .collection("Courses")
+              .doc(cm.courseId)
+              .update(
+                cm
+                    .copyWith(
+                      dateTime: DateTime.now().toString(),
+                      totalDuration:
+                          cm.totalDuration == 0 ? totalDuration : null,
+                      audioSizes: sizes.length == cm.courseIds.split(",").length
+                          ? sizes.join(",")
+                          : cm.audioSizes,
+                    )
+                    .toOriginalMap(),
+              );
+          final data = jsonEncode(
+            cm
+                .copyWith(
+                  dateTime: DateTime.now().toString(),
+                  totalDuration: cm.totalDuration == 0 ? totalDuration : null,
+                  audioSizes: sizes.length == cm.courseIds.split(",").length
+                      ? sizes.join(",")
+                      : cm.audioSizes,
+                )
+                .toOriginalMap(),
+          );
+          while (true) {
+            try {
+              final qs = await dio.post(
+                "$serverUrl/courses/add",
+                data: data,
+                // options: Options(
+                //   headers: {
+                //     'Content-Type': 'application/json',
+                //   },
+                // ),
+              );
+              Fluttertoast.showToast(msg: qs.statusCode.toString());
+              if (qs.statusCode == 200) {
+                break;
+              }
+            } catch (e) {
+              print(e.toString());
+              Fluttertoast.showToast(msg: e.toString());
+            }
+          }
+          await sendFcmNotification(
+            "አዲስ ደርስ ተለቋል",
+            "${cm.title} በ${cm.ustaz}",
+            cm.image,
+          );
+        } catch (e) {
+          print(e.toString());
+          Fluttertoast.showToast(msg: e.toString());
+        }
       }
     }
   }

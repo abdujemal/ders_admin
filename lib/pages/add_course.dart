@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -74,8 +77,11 @@ class _AddCourseState extends ConsumerState<AddCourse> {
             String encodedString = e
                 .replaceAll("https://b2.ilmfelagi.com/file/ilm-Felagi2/", "")
                 .replaceAll("https://b2.ilmfelagi.com/file/Ilm-Felagi/", "");
-            String decodedString =
-                Uri.decodeFull(encodedString).replaceAll(" ", "_");
+
+            print("encodedString: ${encodedString}");
+            String decodedString = encodedString.contains("_")
+                ? Uri.decodeFull(encodedString).replaceAll(" ", "_")
+                : encodedString;
             return "$decodedString:-$e";
           })
           .toList()
@@ -84,7 +90,7 @@ class _AddCourseState extends ConsumerState<AddCourse> {
       noOfRecords.text = widget.course!.noOfRecord.toString();
       authorTc.text = widget.course!.author;
       imageLink.text = widget.course!.image;
-      uploadDate = widget.course!.dateTime;
+      // uploadDate = widget.course!.dateTime;
       audioIds = widget.course!.courseIds.split(",").map((e) {
         String encodedString = e
             .replaceAll("https://b2.ilmfelagi.com/file/ilm-Felagi2/", "")
@@ -330,7 +336,7 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                         AudioItem(
                           key: ValueKey(audioIds[i]),
                           id: audioIds[i],
-                          title: "${titleTc.text} ${i + 1}",
+                          title: "${titleTc.text.trim()} ${i + 1}",
                           isThisAudioPlaying: i == playingIndex,
                           onLoaded: (String url) {
                             urls[i] = url;
@@ -364,38 +370,57 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                           });
                           try {
                             if (widget.course != null) {
+                              String now = DateTime.now().toString();
+                              final data = widget.course!
+                                  .copyWith(
+                                    isCompleted: isCompleted ? 1 : 0,
+                                    title: titleTc.text.trim(),
+                                    author: authorTc.text,
+                                    ustaz: selectedUstaz!,
+                                    category: categoryTc.text,
+                                    courseIds: pureIds.join(","),
+                                    dateTime: alsoDate ? uploadDate : now,
+                                    pdfId: pdfLink.text.trim().split(":-").last,
+                                    image: imageLink.text,
+                                    noOfRecord: int.parse(noOfRecords.text),
+                                  )
+                                  .toOriginalMap();
                               await FirebaseFirestore.instance
                                   .collection("Courses")
                                   .doc(widget.course!.courseId)
-                                  .update(
-                                    widget.course!
-                                        .copyWith(
-                                          isCompleted: isCompleted ? 1 : 0,
-                                          title: titleTc.text,
-                                          author: authorTc.text,
-                                          ustaz: selectedUstaz!,
-                                          category: categoryTc.text,
-                                          courseIds: pureIds.join(","),
-                                          dateTime:
-                                              alsoDate ? uploadDate : null,
-                                          pdfId: pdfLink.text
-                                              .trim()
-                                              .split(":-")
-                                              .last,
-                                          image: imageLink.text,
-                                          noOfRecord:
-                                              int.parse(noOfRecords.text),
-                                        )
-                                        .toOriginalMap(),
-                                  );
+                                  .update(data);
+                              final dio = Dio();
+                              // final body = jsonEncode(data);
+                              dio.options = BaseOptions(
+                                followRedirects:
+                                    true, // Automatically follow redirects
+                                maxRedirects:
+                                    5, // Set the maximum number of redirects to follow
+                              );
+                              dio.options = BaseOptions(
+                                followRedirects:
+                                    true, // Allow automatic redirect handling
+                                maxRedirects:
+                                    5, // Limit the number of redirects to avoid infinite loops
+                                validateStatus: (status) {
+                                  // Automatically accept all 2xx and 3xx status codes
+                                  return status! < 500;
+                                },
+                              );
+
+                              final qs = await dio.post(
+                                "$serverUrl/courses/add?userName=admins&password=1234asdf",
+                                data: data,
+                              );
                             } else {
                               await FirebaseFirestore.instance
                                   .collection("Courses")
-                                  .doc("$selectedUstaz${titleTc.text}")
+                                  .doc("$selectedUstaz${titleTc.text.trim()}")
                                   .set(
                                     Course(
-                                      courseId: "$selectedUstaz${titleTc.text}",
-                                      title: titleTc.text,
+                                      courseId:
+                                          "$selectedUstaz${titleTc.text.trim()}",
+                                      title: titleTc.text.trim(),
                                       author: authorTc.text,
                                       ustaz: selectedUstaz!,
                                       category: categoryTc.text,
@@ -413,11 +438,6 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                                       merge: true,
                                     ),
                                   );
-                              await sendFcmNotification(
-                                "አዲስ ደርስ ተለቋል",
-                                "${titleTc.text} በ$selectedUstaz",
-                                imageLink.text,
-                              );
                             }
 
                             await FirebaseFirestore.instance
@@ -455,7 +475,7 @@ class _AddCourseState extends ConsumerState<AddCourse> {
 
                               // setState(() {
                               //   isLoading = false;
-                              //   titleTc.text = "";
+                              //   titleTc.text.trim() = "";
                               //   categoryTc.text = "";
                               //   courseLink.text = "";
                               //   pdfLink.text = "";
@@ -470,6 +490,7 @@ class _AddCourseState extends ConsumerState<AddCourse> {
                               }
                             }
                           } catch (e) {
+                            print(e.toString());
                             Fluttertoast.showToast(
                               msg: e.toString(),
                               backgroundColor: Colors.red,

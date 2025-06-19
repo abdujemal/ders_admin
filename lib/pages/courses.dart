@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ders_admin/constants.dart';
+// import 'package:ders_admin/constants.dart';
 import 'package:ders_admin/course.dart';
-import 'package:ders_admin/database_helper.dart';
-import 'package:ders_admin/faq.dart';
+// import 'package:ders_admin/database_helper.dart';
+// import 'package:ders_admin/faq.dart';
 import 'package:ders_admin/pages/add_course.dart';
 import 'package:ders_admin/pages/categories.dart';
 import 'package:ders_admin/pages/ustazs.dart';
@@ -14,8 +14,8 @@ import 'package:ders_admin/widget/update_all_courses.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:path_provider/path_provider.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 class Courses extends ConsumerStatefulWidget {
   const Courses({super.key});
@@ -88,16 +88,17 @@ class _CoursesState extends ConsumerState<Courses> {
   }
 
   getNoOfCourses({String? ustaz, String? category}) async {
-    final aq = await FirebaseFirestore.instance
-        .collection("Courses")
-        .where('ustaz', isEqualTo: ustaz)
-        .where('category', isEqualTo: category)
-        .orderBy('dateTime', descending: true)
-        .count()
-        .get();
+    await Future.delayed(Duration(seconds: 3));
+    // final aq = await FirebaseFirestore.instance
+    //     .collection("Courses")
+    //     .where('ustaz', isEqualTo: ustaz)
+    //     .where('category', isEqualTo: category)
+    //     .orderBy('dateTime', descending: true)
+    //     .count()
+    //     .get();
 
-    noOfCourses = aq.count;
-    setState(() {});
+    // noOfCourses = aq.count!;
+    // setState(() {});
   }
 
   Future<void> getCourses(bool isNew, {String? ustaz, String? category}) async {
@@ -185,63 +186,63 @@ class _CoursesState extends ConsumerState<Courses> {
         appBar: AppBar(
           title: const Text("Courses"),
           actions: [
-            isUploading
-                ? const CircularProgressIndicator()
-                : IconButton(
-                    onPressed: () async {
-                      isUploading = true;
-                      setState(() {});
-                      Directory directory = (await getDownloadsDirectory())!;
-                      String path = '${directory.path}$dbPath';
+            // isUploading
+            //     ? const CircularProgressIndicator()
+            //     : IconButton(
+            //         onPressed: () async {
+            //           isUploading = true;
+            //           setState(() {});
+            //           Directory directory = (await getDownloadsDirectory())!;
+            //           String path = '${directory.path}$dbPath';
 
-                      final res = await FirebaseFirestore.instance
-                          .collection("Courses")
-                          .get();
+            //           final res = await FirebaseFirestore.instance
+            //               .collection("Courses")
+            //               .get();
 
-                      List<String> uniqueNames = [];
-                      for (var d in res.docs) {
-                        if (!uniqueNames.contains(d.data()["title"])) {
-                          uniqueNames.add(d.data()["title"]);
-                          await DatabaseHelper()
-                              .insertContent(d.data()["title"]);
-                        }
-                        await DatabaseHelper()
-                            .insertCourse(Course.fromMap(d.data(), d.id));
-                      }
+            //           List<String> uniqueNames = [];
+            //           for (var d in res.docs) {
+            //             if (!uniqueNames.contains(d.data()["title"])) {
+            //               uniqueNames.add(d.data()["title"]);
+            //               await DatabaseHelper()
+            //                   .insertContent(d.data()["title"]);
+            //             }
+            //             await DatabaseHelper()
+            //                 .insertCourse(Course.fromMap(d.data(), d.id));
+            //           }
 
-                      final res1 = await FirebaseFirestore.instance
-                          .collection("Ustaz")
-                          .get();
+            //           final res1 = await FirebaseFirestore.instance
+            //               .collection("Ustaz")
+            //               .get();
 
-                      for (var d in res1.docs) {
-                        await DatabaseHelper().insertUstaz(d.data()["name"]);
-                      }
+            //           for (var d in res1.docs) {
+            //             await DatabaseHelper().insertUstaz(d.data()["name"]);
+            //           }
 
-                      final res2 = await FirebaseFirestore.instance
-                          .collection("Category")
-                          .get();
+            //           final res2 = await FirebaseFirestore.instance
+            //               .collection("Category")
+            //               .get();
 
-                      for (var d in res2.docs) {
-                        await DatabaseHelper().insertCategory(d.data()["name"]);
-                      }
+            //           for (var d in res2.docs) {
+            //             await DatabaseHelper().insertCategory(d.data()["name"]);
+            //           }
 
-                      final res3 = await FirebaseFirestore.instance
-                          .collection(DatabaseConst.faq)
-                          .get();
+            //           final res3 = await FirebaseFirestore.instance
+            //               .collection(DatabaseConst.faq)
+            //               .get();
 
-                      for (var d in res3.docs) {
-                        await DatabaseHelper().insertFaq(Faq.fromMap(d.data()));
-                      }
+            //           for (var d in res3.docs) {
+            //             await DatabaseHelper().insertFaq(Faq.fromMap(d.data()));
+            //           }
 
-                      print("path: ${directory.path}");
-                      print(
-                          "file size ${formatFileSize(File(path).lengthSync())}");
-                      // await uploadFileToB2();
-                      isUploading = false;
-                      setState(() {});
-                    },
-                    icon: const Icon(Icons.upload),
-                  ),
+            //           print("path: ${directory.path}");
+            //           print(
+            //               "file size ${formatFileSize(File(path).lengthSync())}");
+            //           // await uploadFileToB2();
+            //           isUploading = false;
+            //           setState(() {});
+            //         },
+            //         icon: const Icon(Icons.upload),
+            //       ),
             IconButton(
               onPressed: () async {
                 Fluttertoast.showToast(
